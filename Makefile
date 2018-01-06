@@ -16,7 +16,7 @@ DEBUG: DEBUGFLAGS = -g -O0
 DEBUG: ALL
 
 ALL: $(CFILES)
-	$(CC) $(CFLAGS) $(CFILES) -o $(EXE) $(SFML) $(DEBUGFLAGS)
+	$(CC) $(CFLAGS) $(CFILES) Cell.cpp -o $(EXE) $(SFML) $(DEBUGFLAGS)
 
 #this is customary and just deletes all .o files
 CLEAN:
