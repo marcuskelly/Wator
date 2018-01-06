@@ -18,7 +18,7 @@ const int OCEAN_WIDTH = 80;
 const int OCEAN_HEIGHT = 80;
 const int MAZ_SIZE = 80;
 const int NUMBER_OF_FISH = 10;
-const int NUMBER_OF_SHARK = 0;
+const int NUMBER_OF_SHARK = 5;
 int east, south, xPos, yPos;
 bool started = true;
 
@@ -36,21 +36,28 @@ void drawOcean()
     }
 } // end drawOcean
 
-
 void addFish() {
-    srand(time(NULL));
     for (int i = 0; i < NUMBER_OF_FISH; ++i) {
         yPos = random() % OCEAN_WIDTH;
         xPos = random() % OCEAN_HEIGHT;
-        std::cout << xPos;
         ocean[xPos][yPos] = 1;
         cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Green);
+    }
+} // end addFish
+
+void addShark() {
+    for (int i = 0; i < NUMBER_OF_SHARK; ++i) {
+        yPos = random() % OCEAN_WIDTH;
+        xPos = random() % OCEAN_HEIGHT;
+        ocean[xPos][yPos] = 1;
+        cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Red);
     }
 } // end addFish
 
 
 int main()
 {
+    srand(time(NULL));
     sf::RectangleShape shark;
     shark.setSize(sf::Vector2f(10, 10));
     shark.setFillColor(sf::Color::Red);
@@ -106,6 +113,7 @@ int main()
         if(started)
         {
             addFish();
+            addShark();
             started = false;
         }
         
