@@ -1,5 +1,5 @@
 /**
- *Authors:   Mark Kelly, Ronan Timmons
+ *Authors:  Mark Kelly, Ronan Timmons
  *Date:     27 December 2017
  *License:  GNU General Public License v3.0
  *Brief:    4th Year Wator simulation Project
@@ -14,7 +14,7 @@
 
 const int NUMBER_OF_FISH = 10;
 const int NUMBER_OF_SHARK = 0;
-const int FISH_BREED_TIME = 5;
+const int FISH_BREED_AGE = 5;
 const int SHARK_BREED_TIME = 5;
 const int SHARK_STARVE_TIME = 5;
 const int SCREEN_WIDTH = 800;
@@ -31,7 +31,6 @@ int ocean[OCEAN_WIDTH][OCEAN_HEIGHT];
 Cell cells[OCEAN_WIDTH*OCEAN_HEIGHT];
 sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simulation");
 
-
 /**
  *  Randomly adds the fish to the 2d ocean array.
  *  Changes the cell colour to Green to represent a fish.
@@ -42,6 +41,7 @@ void addFish() {
         xPos = rand() % OCEAN_HEIGHT;
         ocean[yPos][xPos] = FISH;
         cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Green);
+        cells[OCEAN_WIDTH*xPos+yPos].Cell::fishAge = rand() % FISH_BREED_AGE;
     }
 } // end addFish
 
@@ -82,6 +82,7 @@ void moveFish()
             if (ocean[east][south]==FISH)
             {  
                 int move=rand() % 4+1; // random number between 1 and 4
+                // std::cout << move << std::endl;
                 switch (move)
                 {
                     case 1: // move North
@@ -112,17 +113,18 @@ void moveFish()
                 {  
                     ocean[eMove][sMove]=FISH;
                     cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Green);
-                    if(cells[OCEAN_WIDTH*south+east].Cell::fishBreedTime==FISH_BREED_TIME)
+                    if(cells[OCEAN_WIDTH*south+east].Cell::fishAge==FISH_BREED_AGE)
                     {
-                        cells[OCEAN_WIDTH*south+east].Cell::fishBreedTime=0;
-                        cells[OCEAN_WIDTH*sMove+eMove].Cell::fishBreedTime=0;
+                        cells[OCEAN_WIDTH*south+east].Cell::fishAge=0;
+                        cells[OCEAN_WIDTH*sMove+eMove].Cell::fishAge=0;
                         ++fishPopuation;
                     }
                     else
                     {
                         ocean[east][south]=OCEAN;
                         cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
-                        cells[OCEAN_WIDTH*south+east].Cell::fishBreedTime++;
+                        cells[OCEAN_WIDTH*south+east].Cell::fishAge++;
+                        //std::cout << "XXX" << cells[OCEAN_WIDTH*south+east].Cell::fishAge << std::endl;
                     }
                 }
             }
@@ -169,7 +171,7 @@ int main()
     mainDisplay.setCharacterSize(24);
     mainDisplay.setPosition(500, 20);
     mainDisplay.setString("Starting Fish: " + std::to_string(NUMBER_OF_FISH) + "\n" 
-                        + "Fish Breed Time: " + std::to_string(FISH_BREED_TIME) + "\n"
+                        + "Fish Breed Time: " + std::to_string(FISH_BREED_AGE) + "\n"
                         + "Starting Shark: " + std::to_string(NUMBER_OF_SHARK) + "\n"
                         + "Shark Breed Time: " + std::to_string(SHARK_BREED_TIME) + "\n"
                         + "Shark Starve Time: " + std::to_string(SHARK_STARVE_TIME));
@@ -186,10 +188,8 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         } // end while
-
         window.clear();
 
-        
         drawOcean();
         moveFish();
 

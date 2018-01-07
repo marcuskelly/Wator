@@ -5,7 +5,7 @@ class Cell
 public:
 	sf::RectangleShape cell;
 	Cell();
-    int fishBreedTime;
-    int sharkBreedTime;
+    int fishAge;
+    int sharkAge;
     int sharkStarveTime;
 };
