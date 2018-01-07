@@ -12,21 +12,52 @@
 #include <thread>
 #include <ctime>
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 480;
-const int OCEAN_WIDTH = 80;
-const int OCEAN_HEIGHT = 80;
-const int MAZ_SIZE = 80;
 const int NUMBER_OF_FISH = 10;
 const int NUMBER_OF_SHARK = 5;
-int east, south, xPos, yPos;
-bool started = true;
-
+const int FISH_BREED_TIME = 5;
+const int SHARK_BREED_TIME = 5;
+const int SHARK_STARVE_TIME = 5;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 480;
+const int FISH = 1;
+const int SHARK = -1;
+const int OCEAN = 0;
+const int OCEAN_WIDTH = 80;
+const int OCEAN_HEIGHT = 80;
+int east, south, xPos, yPos, emove, smove;
 int ocean[OCEAN_WIDTH][OCEAN_HEIGHT];
 Cell cells[OCEAN_WIDTH*OCEAN_HEIGHT];
-
 sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simulation");
 
+/**
+ *  Randomly adds the fish to the 2d ocean array.
+ *  Changes the cell colour to Green to represent a fish.
+**/
+void addFish() {
+    for (int i = 0; i < NUMBER_OF_FISH; ++i) {
+        yPos = rand() % OCEAN_WIDTH;
+        xPos = rand() % OCEAN_HEIGHT;
+        ocean[xPos][yPos] = FISH;
+        cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Green);
+    }
+} // end addFish
+
+/**
+ *  Randomly adds the shark to the 2d ocean array.
+ *  Changes the cell colour to Red to represent a shark.
+**/
+void addShark() {
+    for (int i = 0; i < NUMBER_OF_SHARK; ++i) {
+        yPos = rand() % OCEAN_WIDTH;
+        xPos = rand() % OCEAN_HEIGHT;
+        ocean[xPos][yPos] = SHARK;
+        cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Red);
+    }
+} // end addShark
+
+/**
+ *  Draws the current state of the ocean to the screen.
+**/
 void drawOcean()
 {
     // draw the Cells
@@ -36,63 +67,99 @@ void drawOcean()
     }
 } // end drawOcean
 
-void addFish() {
-    for (int i = 0; i < NUMBER_OF_FISH; ++i) {
-        yPos = random() % OCEAN_WIDTH;
-        xPos = random() % OCEAN_HEIGHT;
-        ocean[xPos][yPos] = 1;
-        cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Green);
-    }
-} // end addFish
-
-void addShark() {
-    for (int i = 0; i < NUMBER_OF_SHARK; ++i) {
-        yPos = random() % OCEAN_WIDTH;
-        xPos = random() % OCEAN_HEIGHT;
-        ocean[xPos][yPos] = 1;
-        cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Red);
-    }
-} // end addFish
 
 
-int main()
-{
-    srand(time(NULL));
-    sf::RectangleShape shark;
-    shark.setSize(sf::Vector2f(10, 10));
-    shark.setFillColor(sf::Color::Red);
-    shark.setPosition(10, 20);
-
-    sf::RectangleShape fish;
-    fish.setSize(sf::Vector2f(10, 10));
-    fish.setFillColor(sf::Color::Green);
-    fish.setPosition(20, 40);
-
-
-    for (east=0; east<OCEAN_WIDTH; east++)
+void moveFish()
+{     
+    for (east=0; east<OCEAN_WIDTH; ++east)
     {  
-        for (south=0; south<OCEAN_HEIGHT; south++)
+        for (south=0; south<OCEAN_HEIGHT; ++south)
         {  
-            ocean[east][south]=0;
+            if (ocean[east][south]==FISH)
+            {  
+                int move=rand() % 4+1;
+                switch (move)
+                {
+                    case 1:     //move N
+                        emove=east;
+                        smove=south-1;
+                        break;
+                    case 2:     // move E
+                        emove=east+1;
+                        smove=south;
+                        break;
+                    case 3:     // move S
+                        emove=east;
+                        smove=south+1; 
+                        break;
+                     case 4:     // move W
+                        emove=east-1;
+                        smove=south;
+                        break;
+                }
+
+                if (emove<0) emove=0;
+                if (emove==OCEAN_WIDTH) emove=OCEAN_WIDTH-1;
+                if (smove<0) smove=0;
+                if (smove==OCEAN_HEIGHT) smove=OCEAN_HEIGHT-1;
+
+                // make the move if cell is empty
+                if (ocean[emove][smove]==OCEAN)
+                {  
+                    ocean[emove][smove]=FISH;
+                    ocean[east][south]=OCEAN;
+                    cells[OCEAN_WIDTH*smove+emove].cell.setFillColor(sf::Color::Green);
+                    cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                }
+
+
+
+
+            }
         }
     }
-    
+}
+
+
+
+
+
+
+/**
+ *  This method is called once and sets up the simulation.
+**/
+void setUpSimulation()
+{
     int counter = 0;
     const float X_OFFSET = 6;
 	const float Y_OFFSET = 6;
-    int size = Y_OFFSET*OCEAN_WIDTH;
-	for (int y = 0; y < size; y += Y_OFFSET)
+    int numberOfCells = Y_OFFSET*OCEAN_WIDTH;
+    // 2d array for the ocean to keep track of whats in each cell.
+    for (int y=0; y<OCEAN_WIDTH; y++)
+    {  
+        for (int x=0; x<OCEAN_HEIGHT; x++)
+        {  
+            ocean[y][x]=OCEAN; // Every cell set to ocean.
+        }
+    }
+    // Create an array of Rectangle objects to represent the ocean
+	for (int y = 0; y < numberOfCells; y += Y_OFFSET)
 	{
-		for (int x = 0; x < size; x += X_OFFSET)
+		for (int x = 0; x < numberOfCells; x += X_OFFSET)
 		{
 			cells[counter] = Cell();
 			cells[counter].cell.setPosition(sf::Vector2f(float(x), float(y)));
 			counter++;
 		}
-	}
-    
-    //int v1 = rand() % 100;
-    
+	}    
+    addFish();
+    //addShark();
+} // end setUpSimulation
+
+int main()
+{
+    srand(time(NULL));    
+    setUpSimulation();
 
     while (window.isOpen())
     {
@@ -105,18 +172,11 @@ int main()
 
         window.clear();
 
-
-        //window.draw(shark);
-        //window.draw(fish);
-
-        drawOcean();
-        if(started)
-        {
-            addFish();
-            addShark();
-            started = false;
-        }
         
+        drawOcean();
+        
+        
+        moveFish();
 
 
         window.display();
