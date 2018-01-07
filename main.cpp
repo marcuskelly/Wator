@@ -13,7 +13,7 @@
 #include <ctime>
 
 const int NUMBER_OF_FISH = 10;
-const int NUMBER_OF_SHARK = 5;
+const int NUMBER_OF_SHARK = 0;
 const int FISH_BREED_TIME = 5;
 const int SHARK_BREED_TIME = 5;
 const int SHARK_STARVE_TIME = 5;
@@ -24,10 +24,13 @@ const int SHARK = -1;
 const int OCEAN = 0;
 const int OCEAN_WIDTH = 80;
 const int OCEAN_HEIGHT = 80;
-int east, south, xPos, yPos, emove, smove;
+int fishPopuation = NUMBER_OF_FISH;
+int sharkPopulation = NUMBER_OF_SHARK;
+int east, south, xPos, yPos, eMove, sMove;
 int ocean[OCEAN_WIDTH][OCEAN_HEIGHT];
 Cell cells[OCEAN_WIDTH*OCEAN_HEIGHT];
 sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simulation");
+
 
 /**
  *  Randomly adds the fish to the 2d ocean array.
@@ -37,7 +40,7 @@ void addFish() {
     for (int i = 0; i < NUMBER_OF_FISH; ++i) {
         yPos = rand() % OCEAN_WIDTH;
         xPos = rand() % OCEAN_HEIGHT;
-        ocean[xPos][yPos] = FISH;
+        ocean[yPos][xPos] = FISH;
         cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Green);
     }
 } // end addFish
@@ -50,7 +53,7 @@ void addShark() {
     for (int i = 0; i < NUMBER_OF_SHARK; ++i) {
         yPos = rand() % OCEAN_WIDTH;
         xPos = rand() % OCEAN_HEIGHT;
-        ocean[xPos][yPos] = SHARK;
+        ocean[yPos][xPos] = SHARK;
         cells[OCEAN_WIDTH*xPos+yPos].cell.setFillColor(sf::Color::Red);
     }
 } // end addShark
@@ -67,8 +70,9 @@ void drawOcean()
     }
 } // end drawOcean
 
-
-
+/**
+ *  Moves and breeds the fish.
+**/
 void moveFish()
 {     
     for (east=0; east<OCEAN_WIDTH; ++east)
@@ -77,53 +81,54 @@ void moveFish()
         {  
             if (ocean[east][south]==FISH)
             {  
-                int move=rand() % 4+1;
+                int move=rand() % 4+1; // random number between 1 and 4
                 switch (move)
                 {
-                    case 1:     //move N
-                        emove=east;
-                        smove=south-1;
+                    case 1: // move North
+                        eMove=east;
+                        sMove=south-1;
                         break;
-                    case 2:     // move E
-                        emove=east+1;
-                        smove=south;
+                    case 2: // move East
+                        eMove=east+1;
+                        sMove=south;
                         break;
-                    case 3:     // move S
-                        emove=east;
-                        smove=south+1; 
+                    case 3: // move South
+                        eMove=east;
+                        sMove=south+1; 
                         break;
-                     case 4:     // move W
-                        emove=east-1;
-                        smove=south;
+                    case 4: // move West
+                        eMove=east-1;
+                        sMove=south;
                         break;
                 }
 
-                if (emove<0) emove=0;
-                if (emove==OCEAN_WIDTH) emove=OCEAN_WIDTH-1;
-                if (smove<0) smove=0;
-                if (smove==OCEAN_HEIGHT) smove=OCEAN_HEIGHT-1;
+                if (eMove<0) eMove=0;
+                if (eMove==OCEAN_WIDTH) eMove=OCEAN_WIDTH-1;
+                if (sMove<0) sMove=0;
+                if (sMove==OCEAN_HEIGHT) sMove=OCEAN_HEIGHT-1;
 
                 // make the move if cell is empty
-                if (ocean[emove][smove]==OCEAN)
+                if (ocean[eMove][sMove]==OCEAN)
                 {  
-                    ocean[emove][smove]=FISH;
-                    ocean[east][south]=OCEAN;
-                    cells[OCEAN_WIDTH*smove+emove].cell.setFillColor(sf::Color::Green);
-                    cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                    ocean[eMove][sMove]=FISH;
+                    cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Green);
+                    if(cells[OCEAN_WIDTH*south+east].Cell::fishBreedTime==FISH_BREED_TIME)
+                    {
+                        cells[OCEAN_WIDTH*south+east].Cell::fishBreedTime=0;
+                        cells[OCEAN_WIDTH*sMove+eMove].Cell::fishBreedTime=0;
+                        ++fishPopuation;
+                    }
+                    else
+                    {
+                        ocean[east][south]=OCEAN;
+                        cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                        cells[OCEAN_WIDTH*south+east].Cell::fishBreedTime++;
+                    }
                 }
-
-
-
-
             }
         }
     }
-}
-
-
-
-
-
+} // end moveFish
 
 /**
  *  This method is called once and sets up the simulation.
@@ -134,15 +139,14 @@ void setUpSimulation()
     const float X_OFFSET = 6;
 	const float Y_OFFSET = 6;
     int numberOfCells = Y_OFFSET*OCEAN_WIDTH;
-    // 2d array for the ocean to keep track of whats in each cell.
     for (int y=0; y<OCEAN_WIDTH; y++)
     {  
         for (int x=0; x<OCEAN_HEIGHT; x++)
         {  
-            ocean[y][x]=OCEAN; // Every cell set to ocean.
+            ocean[y][x]=OCEAN;
         }
     }
-    // Create an array of Rectangle objects to represent the ocean
+    // Create an array of Rectangle objects to display the ocean
 	for (int y = 0; y < numberOfCells; y += Y_OFFSET)
 	{
 		for (int x = 0; x < numberOfCells; x += X_OFFSET)
@@ -153,14 +157,27 @@ void setUpSimulation()
 		}
 	}    
     addFish();
-    //addShark();
+    addShark();
 } // end setUpSimulation
 
 int main()
 {
+    sf::Text mainDisplay, populationDisplay;
+    sf::Font font;
+    font.loadFromFile("OpenSans-Regular.ttf");
+    mainDisplay.setFont(font);
+    mainDisplay.setCharacterSize(24);
+    mainDisplay.setPosition(500, 20);
+    mainDisplay.setString("Starting Fish: " + std::to_string(NUMBER_OF_FISH) + "\n" 
+                        + "Fish Breed Time: " + std::to_string(FISH_BREED_TIME) + "\n"
+                        + "Starting Shark: " + std::to_string(NUMBER_OF_SHARK) + "\n"
+                        + "Shark Breed Time: " + std::to_string(SHARK_BREED_TIME) + "\n"
+                        + "Shark Starve Time: " + std::to_string(SHARK_STARVE_TIME));
+    populationDisplay.setFont(font);
+    populationDisplay.setCharacterSize(24);
+    populationDisplay.setPosition(500, 300);
     srand(time(NULL));    
     setUpSimulation();
-
     while (window.isOpen())
     {
         sf::Event event;
@@ -174,10 +191,12 @@ int main()
 
         
         drawOcean();
-        
-        
         moveFish();
 
+        populationDisplay.setString("Fish Population: " + std::to_string(fishPopuation) + "\n"
+                                  + "Shark Population: " + std::to_string(sharkPopulation));
+        window.draw(mainDisplay);
+        window.draw(populationDisplay);
 
         window.display();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
