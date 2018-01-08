@@ -1,3 +1,10 @@
+/**
+ *Authors:  Mark Kelly, Ronan Timmons
+ *Date:     27 December 2017
+ *License:  GNU General Public License v3.0
+ *Brief:    4th Year Wator simulation Project
+**/
+
 #include "Cell.h"
 
 Cell::Cell()
@@ -7,4 +14,5 @@ Cell::Cell()
     fishAge=0;
 	sharkAge=0;
 	sharkStarveTime=0;
+	hasMoved=false;
 }

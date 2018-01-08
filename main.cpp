@@ -2,7 +2,7 @@
  *Authors:  Mark Kelly, Ronan Timmons
  *Date:     27 December 2017
  *License:  GNU General Public License v3.0
- *Brief:    4th Year Wator simulation Project
+ *Brief:    4th chronon Wator simulation Project
 **/
 
 #include "Cell.h"
@@ -16,7 +16,7 @@ const int NUMBER_OF_FISH = 10;
 const int NUMBER_OF_SHARK = 10;
 const int FISH_BREED_AGE = 5;
 const int SHARK_BREED_AGE = 5;
-const int SHARK_STARVE_TIME = 10;
+const int SHARK_STARVE_TIME = 5;
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 480;
 const int FISH = 1;
@@ -27,7 +27,7 @@ const int OCEAN_HEIGHT = 80;
 int fishPopuation = NUMBER_OF_FISH;
 int sharkPopulation = NUMBER_OF_SHARK;
 int east, south, xPos, yPos, eMove, sMove;
-int year = 0;
+int chronon = 0;
 int ocean[OCEAN_WIDTH][OCEAN_HEIGHT];
 Cell cells[OCEAN_WIDTH*OCEAN_HEIGHT];
 sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simulation");
@@ -73,7 +73,7 @@ void drawOcean()
 } // end drawOcean
 
 /**
- *  Moves and breeds the fish.
+ *  Moves and breeds the fish and shark, and Handles shark feeding.
 **/
 void moveFishAndShark()
 {     
@@ -84,7 +84,6 @@ void moveFishAndShark()
             if (ocean[east][south]!=OCEAN)
             {  
                 int move=rand() % 4+1; // random number between 1 and 4
-                // std::cout << move << std::endl;
                 switch (move)
                 {
                     case 1: // move North
@@ -105,70 +104,95 @@ void moveFishAndShark()
                         break;
                 }
 
-                if (eMove<0) eMove=0;
-                if (eMove==OCEAN_WIDTH) eMove=OCEAN_WIDTH-1;
-                if (sMove<0) sMove=0;
-                if (sMove==OCEAN_HEIGHT) sMove=OCEAN_HEIGHT-1;
 
-                // make the move if cell is empty
-                if (ocean[eMove][sMove]==OCEAN)
-                {   
-                    if (ocean[east][south]==FISH)
-                    {
-                        ocean[eMove][sMove]=FISH;
-                        cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Green);
-                        if (cells[OCEAN_WIDTH*south+east].Cell::fishAge==FISH_BREED_AGE)
-                        {
-                            cells[OCEAN_WIDTH*south+east].Cell::fishAge=0;
-                            cells[OCEAN_WIDTH*sMove+eMove].Cell::fishAge=0;
-                            ++fishPopuation;
-                        }
-                        else
-                        {
-                            ocean[east][south]=OCEAN;
-                            cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
-                            cells[OCEAN_WIDTH*south+east].Cell::fishAge++;
-                        }
-                    }
-                    else // Its a shark
-                    {
-                        if (cells[OCEAN_WIDTH*south+east].Cell::sharkStarveTime==SHARK_STARVE_TIME)
-                        {
-                            ocean[east][south]=OCEAN;
-                            cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
-                            --sharkPopulation;
-                        }
-                        else if (cells[OCEAN_WIDTH*south+east].Cell::sharkAge==SHARK_BREED_AGE)
-                        {
-                            ocean[eMove][sMove]=SHARK;
-                            cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Red);
-                            cells[OCEAN_WIDTH*south+east].Cell::sharkAge=0;
-                            cells[OCEAN_WIDTH*sMove+eMove].Cell::sharkAge=0;
-                            ++sharkPopulation;
-                        }
-                        else
-                        {
-                            ocean[eMove][sMove]=SHARK;
-                            cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Red);
-                            ocean[east][south]=OCEAN;
-                            cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
-                            cells[OCEAN_WIDTH*south+east].Cell::sharkAge++;
-                            cells[OCEAN_WIDTH*south+east].Cell::sharkStarveTime++;
-                        }
-
-                    }
-                }
-                else if (ocean[eMove][sMove]==FISH && ocean[east][south]==SHARK)
+                if (eMove<0)
                 {
-                    ocean[eMove][sMove]=SHARK;
-                    cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Red);
-                    cells[OCEAN_WIDTH*sMove+eMove].Cell::sharkStarveTime=0;
-                    ocean[east][south]=OCEAN;
-                    cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
-                    --fishPopuation;
+                    eMove=79;
                 }
+                if (eMove==OCEAN_WIDTH)
+                {
+                    eMove=0;
+                }
+                if (sMove<0)
+                {
+                    sMove=79;
+                }
+                if (sMove==OCEAN_HEIGHT)
+                {
+                    sMove=0;
+                }
+
+
+
+                if (cells[OCEAN_WIDTH*south+east].Cell::hasMoved==false)
+                {
+                    if (ocean[eMove][sMove]==OCEAN)
+                    {   
+                        if (ocean[east][south]==FISH)
+                        {
+                            ocean[eMove][sMove]=FISH;
+                            cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Green);
+                            cells[OCEAN_WIDTH*sMove+eMove].Cell::hasMoved=true;
+                            if (cells[OCEAN_WIDTH*south+east].Cell::fishAge==FISH_BREED_AGE)
+                            {
+                                cells[OCEAN_WIDTH*south+east].Cell::fishAge=0;
+                                cells[OCEAN_WIDTH*sMove+eMove].Cell::fishAge=0;
+                                ++fishPopuation;
+                            }
+                            else
+                            {
+                                ocean[east][south]=OCEAN;
+                                cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                                cells[OCEAN_WIDTH*south+east].Cell::fishAge++;
+                            }
+                        }
+                        else // Its a shark
+                        {
+                            if (cells[OCEAN_WIDTH*south+east].Cell::sharkStarveTime==SHARK_STARVE_TIME)
+                            {
+                                ocean[east][south]=OCEAN;
+                                cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                                --sharkPopulation;
+                            }
+                            else if (cells[OCEAN_WIDTH*south+east].Cell::sharkAge==SHARK_BREED_AGE)
+                            {
+                                ocean[eMove][sMove]=SHARK;
+                                cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Red);
+                                cells[OCEAN_WIDTH*south+east].Cell::sharkAge=0;
+                                cells[OCEAN_WIDTH*sMove+eMove].Cell::sharkAge=0;
+                                cells[OCEAN_WIDTH*sMove+eMove].Cell::hasMoved=true;
+                                ++sharkPopulation;
+                            }
+                            else
+                            {
+                                ocean[eMove][sMove]=SHARK;
+                                cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Red);
+                                ocean[east][south]=OCEAN;
+                                cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                                cells[OCEAN_WIDTH*sMove+eMove].Cell::hasMoved=true;
+                                cells[OCEAN_WIDTH*south+east].Cell::sharkAge++;
+                                cells[OCEAN_WIDTH*south+east].Cell::sharkStarveTime++;
+                            }
+
+                        }
+                    }
+                    else if (ocean[eMove][sMove]==FISH && ocean[east][south]==SHARK)
+                    {
+                        ocean[eMove][sMove]=SHARK;
+                        cells[OCEAN_WIDTH*sMove+eMove].cell.setFillColor(sf::Color::Red);
+                        cells[OCEAN_WIDTH*sMove+eMove].Cell::sharkStarveTime=0;
+                        ocean[east][south]=OCEAN;
+                        cells[OCEAN_WIDTH*south+east].cell.setFillColor(sf::Color::Blue);
+                        cells[OCEAN_WIDTH*sMove+eMove].Cell::hasMoved=true;
+                        --fishPopuation;
+                    }
+                }    
             }
         }
+    }
+    for (int i = 0; i < OCEAN_WIDTH*OCEAN_HEIGHT; ++i)
+    {
+        cells[i].Cell::hasMoved=false;
     }
 } // end moveFish
 
@@ -218,10 +242,6 @@ int main()
     populationDisplay.setFont(font);
     populationDisplay.setCharacterSize(24);
     populationDisplay.setPosition(500, 360);
-    endMessage.setFont(font);
-    endMessage.setCharacterSize(40);
-    endMessage.setPosition(75, 200);
-    endMessage.setString("A Lifeless World!");
     srand(time(NULL));    
     setUpSimulation();
     while (window.isOpen())
@@ -239,18 +259,14 @@ int main()
 
         populationDisplay.setString("Fish Population: " + std::to_string(fishPopuation) + "\n"
                                   + "Shark Population: " + std::to_string(sharkPopulation) + "\n"
-                                  + "Year: " + std::to_string(year));
+                                  + "Chronon: " + std::to_string(chronon));
         window.draw(mainDisplay);
         window.draw(populationDisplay);
-        if (sharkPopulation==0&&fishPopuation==0)
-        {
-            window.draw(endMessage);
-        }
         
 
         window.display();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        ++year;
+        ++chronon;
     } // end while
     return 0;
 } // end main

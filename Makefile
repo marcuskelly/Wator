@@ -1,4 +1,7 @@
-#Mark Kelly C00198041 02/10/2017
+# Authors:  Mark Kelly, Ronan Timmons
+# Date:     27 December 2017
+# License:  GNU General Public License v3.0
+# Brief:    4th Year Wator simulation Project
 
 EXE = mySfml
 CC = g++
