@@ -16,4 +16,7 @@ public:
     int sharkAge;
     int sharkStarveTime;
     bool hasMoved;
+    //bool isOcean;
+    bool isFish;
+    bool isShark;
 };
