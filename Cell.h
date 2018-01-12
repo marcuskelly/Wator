@@ -15,8 +15,6 @@ public:
     int fishAge;
     int sharkAge;
     int sharkStarveTime;
+    int cellType;
     bool hasMoved;
-    //bool isOcean;
-    bool isFish;
-    bool isShark;
 };

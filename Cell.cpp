@@ -14,8 +14,6 @@ Cell::Cell()
     fishAge = 0;
 	sharkAge = 0;
 	sharkStarveTime = 0;
+	cellType = 0;
 	hasMoved = false;
-	//isOcean = true;
-	isFish = false;
-	isShark = false;
 }
