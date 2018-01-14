@@ -12,9 +12,8 @@ class Cell
 public:
 	sf::RectangleShape cell;
 	Cell();
-    int fishAge;
-    int sharkAge;
-    int sharkStarveTime;
+    int age;
+    int starveTime;
     int cellType;
     bool hasMoved;
 };
