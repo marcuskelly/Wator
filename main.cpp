@@ -89,33 +89,33 @@ void setMove(int *xPosition, int *yPosition)
     std::cout << "Current - X: "<< x << ". Y: " << y << std::endl;
  
     // Check North
-    if (ocean[x][((y -1) < 0) ? 79 : y-1].Cell::cellType == OCEAN)
+    if (ocean[x][((y -1) < 0) ? OCEAN_HEIGHT-1 : y-1].Cell::cellType == OCEAN)
     {
-        moves.push_back(std::make_tuple(x, ((y -1) < 0) ? 79 : y-1, FISH));
+        moves.push_back(std::make_tuple(x, ((y -1) < 0) ? OCEAN_HEIGHT-1 : y-1, FISH));
         ++counter;
         std::cout << "North" << std::endl;
     }
     
     // Check East
-    if (ocean[((x +1) > 79) ? 0 : x+1][y].Cell::cellType == OCEAN)
+    if (ocean[((x +1) > OCEAN_WIDTH-1) ? 0 : x+1][y].Cell::cellType == OCEAN)
     {
-        moves.push_back(std::make_tuple(((x +1) > 79) ? 0 : x+1, y, FISH));
+        moves.push_back(std::make_tuple(((x +1) > OCEAN_WIDTH-1) ? 0 : x+1, y, FISH));
         ++counter;
         std::cout << "East" << std::endl;
     }
 
     // Check South
-    if (ocean[x][((y +1) > 79) ? 0 : y+1].Cell::cellType == OCEAN)
+    if (ocean[x][((y +1) > OCEAN_HEIGHT-1) ? 0 : y+1].Cell::cellType == OCEAN)
     {
-        moves.push_back(std::make_tuple(x, ((y +1) > 79) ? 0 : y+1, FISH));
+        moves.push_back(std::make_tuple(x, ((y +1) > OCEAN_HEIGHT-1) ? 0 : y+1, FISH));
         ++counter;
         std::cout << "South" << std::endl;
     }
 
     // Check West
-    if (ocean[((x -1) < 0) ? 79 : x-1][y].Cell::cellType == OCEAN)
+    if (ocean[((x -1) < 0) ? OCEAN_WIDTH-1 : x-1][y].Cell::cellType == OCEAN)
     {
-        moves.push_back(std::make_tuple(((x -1) < 0) ? 79 : x-1, y, FISH));
+        moves.push_back(std::make_tuple(((x -1) < 0) ? OCEAN_WIDTH-1 : x-1, y, FISH));
         ++counter;
         std::cout << "West" << std::endl;
     }
