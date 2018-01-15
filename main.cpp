@@ -11,12 +11,14 @@
 #include <chrono>
 #include <thread>
 #include <ctime>
+//#include<bits/stdc++.h>
 
-const int N_FISH = 6399;
-const int N_SHARK = 1;
+const int N_FISH = 1;
+const int N_SHARK = 0;
 const int F_BREED = 5;
 const int S_BREED = 5;
 const int STARVE = 5;
+const int TIME = 200; // time in milliseconds for each chronon
 const int OCEAN_WIDTH = 80;
 const int OCEAN_HEIGHT = 80;
 const int SCREEN_WIDTH = 800;
@@ -26,8 +28,9 @@ const int FISH = 1;
 const int SHARK = -1;
 int fishPop = N_FISH;
 int sharkPop = N_SHARK;
-int x, y, xMove, yMove;
 int chronon = 0;
+int x, y, xMove, yMove;
+std::vector<std::tuple<int, int, int>> moves;
 Cell ocean[OCEAN_WIDTH][OCEAN_HEIGHT];
 sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simulation");
 
@@ -79,81 +82,61 @@ void drawOcean()
 
 void setMove(int *xPosition, int *yPosition) 
 {
-    int x, y, counter, xSearch, ySearch, top, right, bottom, left, move;
-    counter = 0;
-    xSearch = -1;
-    ySearch= -1;
-    x = *xPosition;
-    y = *yPosition;
-    xSearch = x;
-    ySearch = y;
-
-    std::vector<int> v;
+    int counter = 0;
+    int x = *xPosition;
+    int y = *yPosition;
     
-    /*
-    if (x-1 < 0)
+    std::cout << "Current - X: "<< x << ". Y: " << y << std::endl;
+ 
+    // Check North
+    if (ocean[x][((y -1) < 0) ? 79 : y-1].Cell::cellType == OCEAN)
     {
-        xSearch = 79;
+        moves.push_back(std::make_tuple(x, ((y -1) < 0) ? 79 : y-1, FISH));
+        ++counter;
+        std::cout << "North" << std::endl;
     }
-    else if (x == OCEAN_WIDTH -1)
+    
+    // Check East
+    if (ocean[((x +1) > 79) ? 0 : x+1][y].Cell::cellType == OCEAN)
     {
-        xSearch = 0;
-    }
-    if (y-1 < 0)
-    {
-        ySearch = 79;
-    }
-    else if (y == OCEAN_WIDTH -1)
-    {
-        ySearch = 0;
+        moves.push_back(std::make_tuple(((x +1) > 79) ? 0 : x+1, y, FISH));
+        ++counter;
+        std::cout << "East" << std::endl;
     }
 
-    std::cout << counter << ": " << xSearch << ", " << ySearch << std::endl;
+    // Check South
+    if (ocean[x][((y +1) > 79) ? 0 : y+1].Cell::cellType == OCEAN)
+    {
+        moves.push_back(std::make_tuple(x, ((y +1) > 79) ? 0 : y+1, FISH));
+        ++counter;
+        std::cout << "South" << std::endl;
+    }
+
+    // Check West
+    if (ocean[((x -1) < 0) ? 79 : x-1][y].Cell::cellType == OCEAN)
+    {
+        moves.push_back(std::make_tuple(((x -1) < 0) ? 79 : x-1, y, FISH));
+        ++counter;
+        std::cout << "West" << std::endl;
+    }
+    //std::cout << ">>>>>>> North - X: "<< x << ". Y: " << std::get<1>(moves[0]) << std::endl;
+    //std::cout << ">>>>>>> East - X: "<< std::get<0>(moves[1]) << ". Y: " << y << std::endl;
+    //std::cout << ">>>>>>> South - X: " << x << ". Y: " << std::get<1>(moves[2]) << std::endl;
+    //std::cout << ">>>>>>> West - X: "<< std::get<0>(moves[3]) << ". Y: " << y << std::endl;
+
+    std::cout << counter << std::endl;
     
-    if (ocean[xSearch][ySearch-1].Cell::isOcean == true)
+
+    if (!moves.empty())
     {
-        v.push_back(1);
-        ++counter;
-    }
-    if (ocean[xSearch+1][ySearch].Cell::isOcean == true)
-    {
-        v.push_back(2);
-        ++counter;
-    }
-    if (ocean[xSearch][ySearch+1].Cell::isOcean == true)
-    {
-        v.push_back(3);
-        ++counter;
-    }
-    if (ocean[xSearch-1][ySearch].Cell::isOcean == true)
-    {
-        v.push_back(4);
-        ++counter;
+        int move = rand() % int(counter);
+        std::cout << ">>>>>>> Move - X: "<< std::get<0>(moves[move]) << ". Y: " << std::get<1>(moves[move]) << std::endl;
+        (*xPosition) = std::get<0>(moves[move]);
+        (*yPosition) = std::get<1>(moves[move]);
     }
     
-    move = rand() % counter+1; // random number between 1 and 4
-    switch (v[move])
-    {
-        case 1: // move North
-            x = xSearch;
-            y = ySearch-1;
-            break;
-        case 2: // move x
-            x = xSearch+1;
-            y = ySearch;
-            break;
-        case 3: // move y
-            x = xSearch;
-            y = ySearch+1; 
-            break;
-        case 4: // move West
-            x = xSearch-1;
-            y = ySearch;
-            break;
-    }
-    */
-    (*xPosition) = x;
-    (*yPosition) = y;
+    moves.clear();
+    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
 }
 
 /**
@@ -161,17 +144,19 @@ void setMove(int *xPosition, int *yPosition)
 **/
 void moveFish()
 {   int move, moves, xPosition, yPosition;
+    //int moves = 0;
 
     for (x = 0; x < OCEAN_WIDTH; ++x)
     {  
         for (y = 0; y < OCEAN_HEIGHT; ++y)
-        {   
+        {  
             if (ocean[x][y].Cell::cellType == FISH
                 && ocean[x][y].Cell::hasMoved == false)
             {   
                 xPosition = x;
                 yPosition = y;
-                //setMove(&yPosition, &xPosition);
+                setMove(&xPosition, &yPosition);
+
                 move = rand() % 4+1; // random number between 1 and 4
                 switch (move)
                 {
@@ -210,20 +195,20 @@ void moveFish()
                     yMove = 0;
                 }
                 
-                if (ocean[xMove][yMove].Cell::cellType == OCEAN)
+                if (ocean[xPosition][yPosition].Cell::cellType == OCEAN)
                 {
-                    ocean[xMove][yMove].cell.setFillColor(sf::Color::Green);
-                    ocean[xMove][yMove].Cell::cellType = FISH;
-                    ocean[xMove][yMove].Cell::hasMoved = true;
+                    ocean[xPosition][yPosition].cell.setFillColor(sf::Color::Green);
+                    ocean[xPosition][yPosition].Cell::cellType = FISH;
+                    ocean[xPosition][yPosition].Cell::hasMoved = true;
                     if (ocean[x][y].Cell::age < F_BREED)
                     {
                         ocean[x][y].cell.setFillColor(sf::Color::Blue);
                         ocean[x][y].Cell::cellType = OCEAN;
-                        ocean[xMove][yMove].Cell::age = ocean[x][y].Cell::age + 1;
+                        ocean[xPosition][yPosition].Cell::age = ocean[x][y].Cell::age + 1;
                     }
                     else
                     {
-                        ocean[xMove][yMove].Cell::age = 0;
+                        ocean[xPosition][yPosition].Cell::age = 0;
                         ocean[x][y].Cell::age = 0;
                         ++fishPop;
                     }
@@ -354,7 +339,7 @@ void setUpSimulation()
 		for (y = 0; y < OCEAN_HEIGHT; ++y)
 		{
 			ocean[x][y] = Cell();
-			ocean[x][y].cell.setPosition(sf::Vector2f(float(xPos), float(yPos)));
+			ocean[x][y].cell.setPosition(sf::Vector2f(float(yPos), float(xPos)));
             xPos += OFF_SET;
 		}
         xPos = 0;
@@ -400,7 +385,7 @@ int main()
         window.draw(mainDisplay);
         window.draw(populationDisplay);
         window.display();
-        std::this_thread::sleep_for(std::chrono::milliseconds());
+        std::this_thread::sleep_for(std::chrono::milliseconds(TIME));
         ++chronon;
     } // end while
     return 0;
