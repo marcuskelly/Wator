@@ -9,15 +9,14 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-//#include <stdlib.h>
 #include <time.h>
 
-const int N_FISH = 6399;
-const int N_SHARK = 1;
+const int N_FISH = 1000;
+const int N_SHARK = 100;
 const int F_BREED = 5;
 const int S_BREED = 5;
 const int STARVE = 5;
-const int TIME = 200; // time in milliseconds for each chronon
+const int TIME = 0; // time in milliseconds for each chronon
 const int OCEAN_WIDTH = 80;
 const int OCEAN_HEIGHT = 80;
 const int SCREEN_WIDTH = 800;
@@ -35,9 +34,8 @@ sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simu
 sf::Text display;
 
 /**
- *  Randomly adds the creature to the ocean.
- *  Set ocean cell to Green for fish,
- *  Ser ocean cell to Red for shark.
+ *  Takes an integer value for the creature, 
+ *  and the number of creatures to add to the ocean.
 **/
 void addCreature(int creature, int nCreatures) 
 {
@@ -53,7 +51,7 @@ void addCreature(int creature, int nCreatures)
             {
                 ocean[x][y].cell.setFillColor(sf::Color::Green);
             }
-            else
+            else // We have a shark
             {
                 ocean[x][y].cell.setFillColor(sf::Color::Red);
             }
@@ -81,7 +79,8 @@ void drawOcean()
 } // end drawOcean
 
 /**
- *  Checks the neighbours, and adds possible moves to a vector of tuples.
+ *  Takes current x, y positions and type of cell to check for.
+ *  Adds the found cells to a vector, and returns the number of cells found.
 **/
 int checkCellType(int x, int y, int cellType)
 {
@@ -114,7 +113,7 @@ int checkCellType(int x, int y, int cellType)
 } // end checkCellType
 
 /**
- *  Set the x,y position of the move.
+ *  Takes pointers to current x and y positions and the creature type.
 **/
 void findMove(int *xPosition, int *yPosition, int creature) 
 {
@@ -124,14 +123,14 @@ void findMove(int *xPosition, int *yPosition, int creature)
     if (creature == FISH)
     {
         counter = checkCellType(x, y , OCEAN);
-        if (counter > 0)
+        if (!moves.empty())
         {
             int move = rand() % int(counter);
             (*xPosition) = std::get<0>(moves[move]);
             (*yPosition) = std::get<1>(moves[move]);
         }
     }
-    else
+    else // We have a shark
     {
         counter = checkCellType(x, y , FISH);
         if (!moves.empty())
@@ -140,7 +139,7 @@ void findMove(int *xPosition, int *yPosition, int creature)
             (*xPosition) = std::get<0>(moves[move]);
             (*yPosition) = std::get<1>(moves[move]);
         }
-        else
+        else // No fish found, so check for ocean
         {
             counter = checkCellType(x, y , OCEAN);
             if (!moves.empty())
@@ -197,7 +196,7 @@ void moveFish()
 } // end moveFish
 
 /**
- *  Moves shark, and Handles shark breeding and feeding.
+ *  Moves shark.
 **/
 void moveShark()
 {     
@@ -221,7 +220,7 @@ void moveShark()
                         ocean[x][y].Cell::age++;
                         ocean[x][y].Cell::starveTime++;
                     }
-                    else
+                    else // we have a position to move to
                     {
                         xMove = x;
                         yMove = y;
@@ -278,7 +277,7 @@ void moveShark()
 **/
 void setUpSimulation()
 {
-    const int OFF_SET = 6;
+    const int OFF_SET = 6; // offset = width of cell + 1
     int xPos = 0;
     int yPos = 0;
 	for (x = 0; x < OCEAN_WIDTH; ++x)
@@ -324,7 +323,8 @@ int main()
                         +"Shark Breed Age: "+std::to_string(S_BREED)+"\n"
                         +"Shark Starve: "+std::to_string(STARVE)+"\n\n"
                         +"Fish Population: "+std::to_string(fishPop)+"\n"
-                        +"Shark Population: "+std::to_string(sharkPop)+"\n");
+                        +"Shark Population: "+std::to_string(sharkPop)+"\n"
+                        +"Chronons: "+std::to_string(chronon));
         window.draw(display);
         window.display();
         std::this_thread::sleep_for(std::chrono::milliseconds(TIME));
