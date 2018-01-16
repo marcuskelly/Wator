@@ -13,6 +13,6 @@ Cell::Cell()
 	cell.setFillColor(sf::Color::Blue);
 	age = 0;
 	starveTime = 0;
-	cellType = 0;
+	cellType = 0; // zero represents an ocean cell
 	hasMoved = false;
 }
