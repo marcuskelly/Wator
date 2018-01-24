@@ -42,7 +42,7 @@ make
 Run the program
 
 ```
-./mySfml
+./start
 ```
 
 ### Up and running
