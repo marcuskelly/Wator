@@ -13,7 +13,7 @@ public:
 	sf::RectangleShape cell;
 	Cell();
     int age;
-    int starveTime;
+    int starveAge;
     int cellType;
-    bool hasMoved;
+    bool madeMove;
 };

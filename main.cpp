@@ -11,12 +11,12 @@
 #include <thread>
 #include <time.h>
 
-const int N_FISH = 1000;
-const int N_SHARK = 100;
+const int N_FISH = 120;
+const int N_SHARK = 50;
 const int F_BREED = 5;
 const int S_BREED = 5;
 const int STARVE = 5;
-const int TIME = 0; // time in milliseconds for each chronon
+const int TIME = 100; // time in milliseconds for each chronon
 const int OCEAN_WIDTH = 80;
 const int OCEAN_HEIGHT = 80;
 const int SCREEN_WIDTH = 800;
@@ -28,8 +28,8 @@ int fishPop = N_FISH;
 int sharkPop = N_SHARK;
 int chronon = 0;
 int x, y, xMove, yMove;
-Cell ocean[OCEAN_WIDTH][OCEAN_HEIGHT];
-std::vector<std::tuple<int, int>> moves;
+Cell ocean[OCEAN_WIDTH][OCEAN_HEIGHT]; // array of cell objects
+std::vector<std::tuple<int, int>> moves; // vector of tuples to store x y positions
 sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Wa-Tor Simulation");
 sf::Text display;
 
@@ -72,7 +72,7 @@ void drawOcean()
     {  
         for (y = 0; y < OCEAN_HEIGHT; ++y)
         {
-            ocean[x][y].Cell::hasMoved = false;
+            ocean[x][y].Cell::madeMove = false;
             window.draw(ocean[x][y].cell);
         }
     }
@@ -139,7 +139,7 @@ void findMove(int *xPosition, int *yPosition, int creature)
             (*xPosition) = std::get<0>(moves[move]);
             (*yPosition) = std::get<1>(moves[move]);
         }
-        else // No fish found, so check for ocean
+        else // No food found, so check for ocean
         {
             counter = checkCellType(x, y , OCEAN);
             if (!moves.empty())
@@ -163,7 +163,7 @@ void moveFish()
         for (y = 0; y < OCEAN_HEIGHT; ++y)
         {  
             if (ocean[x][y].Cell::cellType == FISH
-                && ocean[x][y].Cell::hasMoved == false)
+                && ocean[x][y].Cell::madeMove == false)
             {   
                 xMove = x;
                 yMove = y;
@@ -172,18 +172,18 @@ void moveFish()
                 {
                     ocean[x][y].Cell::age++;
                 }
-                else
+                else // we have a position to move to
                 {
                     ocean[xMove][yMove].cell.setFillColor(sf::Color::Green);
                     ocean[xMove][yMove].Cell::cellType = FISH;
-                    ocean[xMove][yMove].Cell::hasMoved = true;
+                    ocean[xMove][yMove].Cell::madeMove = true;
                     if (ocean[x][y].Cell::age < F_BREED)
                     {
                         ocean[x][y].cell.setFillColor(sf::Color::Blue);
                         ocean[x][y].Cell::cellType = OCEAN;
                         ocean[xMove][yMove].Cell::age = ocean[x][y].Cell::age + 1;
                     }
-                    else
+                    else // fish got jiggy with it
                     {
                         ocean[xMove][yMove].Cell::age = 0;
                         ocean[x][y].Cell::age = 0;
@@ -205,9 +205,9 @@ void moveShark()
         for (y = 0; y < OCEAN_HEIGHT; ++y)
         {
             if (ocean[x][y].Cell::cellType == SHARK
-                && ocean[x][y].Cell::hasMoved == false)
+                && ocean[x][y].Cell::madeMove == false)
             {   
-                if (ocean[x][y].Cell::starveTime == STARVE)
+                if (ocean[x][y].Cell::starveAge == STARVE)
                 {
                     ocean[x][y].cell.setFillColor(sf::Color::Blue);
                     ocean[x][y].Cell::cellType = OCEAN;
@@ -218,7 +218,7 @@ void moveShark()
                     if (xMove == x && yMove == y)
                     {
                         ocean[x][y].Cell::age++;
-                        ocean[x][y].Cell::starveTime++;
+                        ocean[x][y].Cell::starveAge++;
                     }
                     else // we have a position to move to
                     {
@@ -229,8 +229,8 @@ void moveShark()
                         {
                             ocean[xMove][yMove].cell.setFillColor(sf::Color::Red);
                             ocean[xMove][yMove].Cell::cellType = SHARK;
-                            ocean[xMove][yMove].Cell::hasMoved = true;
-                            ocean[xMove][yMove].Cell::starveTime = ocean[x][y].Cell::starveTime +1;
+                            ocean[xMove][yMove].Cell::madeMove = true;
+                            ocean[xMove][yMove].Cell::starveAge = ocean[x][y].Cell::starveAge +1;
                             if (ocean[x][y].Cell::age < S_BREED)
                             {
                                 ocean[x][y].cell.setFillColor(sf::Color::Blue);
@@ -240,7 +240,7 @@ void moveShark()
                             else // shark got jiggy with it
                             {
                                 ocean[xMove][yMove].Cell::age = 0;
-                                ocean[xMove][yMove].Cell::starveTime = 0;
+                                ocean[xMove][yMove].Cell::starveAge = 0;
                                 ocean[x][y].Cell::age = 0;
                                 ++sharkPop;
                             }
@@ -249,7 +249,8 @@ void moveShark()
                         {
                             ocean[xMove][yMove].Cell::cellType = SHARK;
                             ocean[xMove][yMove].cell.setFillColor(sf::Color::Red);
-                            ocean[xMove][yMove].Cell::starveTime = 0;
+                            ocean[xMove][yMove].Cell::madeMove = true;
+                            ocean[xMove][yMove].Cell::starveAge = 0;
                             --fishPop;
                             if (ocean[x][y].Cell::age < S_BREED)
                             {
@@ -257,7 +258,7 @@ void moveShark()
                                 ocean[x][y].Cell::cellType = OCEAN;
                                 ocean[xMove][yMove].Cell::age = ocean[x][y].Cell::age + 1;  
                             }
-                            else // fish got jiggy with it
+                            else // shark got jiggy with it
                             {
                                 ocean[xMove][yMove].Cell::age = 0;
                                 ocean[x][y].Cell::age = 0;
@@ -318,13 +319,13 @@ int main()
         moveFish();
         moveShark();
         display.setString("Starting Fish: "+std::to_string(N_FISH)+"\n" 
-                        +"Fish Breed Age: "+std::to_string(F_BREED)+"\n"
-                        +"Starting Shark: "+std::to_string(N_SHARK)+"\n"
-                        +"Shark Breed Age: "+std::to_string(S_BREED)+"\n"
-                        +"Shark Starve: "+std::to_string(STARVE)+"\n\n"
-                        +"Fish Population: "+std::to_string(fishPop)+"\n"
-                        +"Shark Population: "+std::to_string(sharkPop)+"\n"
-                        +"Chronons: "+std::to_string(chronon));
+                         +"Fish Breed Age: "+std::to_string(F_BREED)+"\n"
+                         +"Starting Shark: "+std::to_string(N_SHARK)+"\n"
+                         +"Shark Breed Age: "+std::to_string(S_BREED)+"\n"
+                         +"Shark Starve: "+std::to_string(STARVE)+"\n\n"
+                         +"Fish Population: "+std::to_string(fishPop)+"\n"
+                         +"Shark Population: "+std::to_string(sharkPop)+"\n"
+                         +"Chronons: "+std::to_string(chronon));
         window.draw(display);
         window.display();
         std::this_thread::sleep_for(std::chrono::milliseconds(TIME));
