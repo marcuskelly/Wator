@@ -3,7 +3,7 @@
 # License:  GNU General Public License v3.0
 # Brief:    4th Year Wator simulation Project
 
-EXE = mySfml
+TARGET_EXEC = start
 CC = g++
 CFLAGS = -std=c++11 -pthread -I.
 CFILES = main.o
@@ -19,7 +19,7 @@ DEBUG: DEBUGFLAGS = -g -O0
 DEBUG: ALL
 
 ALL: $(CFILES)
-	$(CC) $(CFLAGS) $(CFILES) Cell.cpp -o $(EXE) $(SFML) $(DEBUGFLAGS)
+	$(CC) $(CFLAGS) $(CFILES) Cell.cpp -o $(TARGET_EXEC) $(SFML) $(DEBUGFLAGS)
 
 #this is customary and just deletes all .o files
 CLEAN:
