@@ -10,9 +10,11 @@
 #include <chrono>
 #include <thread>
 #include <time.h>
+#include "main.h"
+#include <fstream> // for output filebenchmarking
 
-const int N_FISH = 120;
-const int N_SHARK = 50;
+const int N_FISH = 820;
+const int N_SHARK = 450;
 const int F_BREED = 5;
 const int S_BREED = 5;
 const int STARVE = 5;
@@ -24,6 +26,7 @@ const int SCREEN_HEIGHT = 480;
 const int OCEAN = 0;
 const int FISH = 1;
 const int SHARK = -1;
+const int ITERATIONS = 5000; // Iteration Data for benchmarking 
 int fishPop = N_FISH;
 int sharkPop = N_SHARK;
 int chronon = 0;
@@ -300,13 +303,17 @@ int main()
 {
     sf::Text display;
     sf::Font font;
-    font.loadFromFile("OpenSans-Regular.ttf");
+	std::ofstream benchFileWrite;
+	benchFileWrite.open("benchTimeTaken320.csv");
+	std::clock_t benchStartTime;
+	double benchTimeTaken = 0.0;
+	font.loadFromFile("OpenSans-Regular.ttf");
     display.setFont(font);
     display.setCharacterSize(24);
     display.setPosition(500, 20); 
     srand(time(NULL));  
     setUpSimulation();
-    while (window.isOpen())
+	while (window.isOpen() && chronon < ITERATIONS) //stop collecting data after 5000 for benchmarking
     {
         sf::Event event;
         while (window.pollEvent(event))
@@ -314,6 +321,7 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
         } // end while
+		benchStartTime = std::clock(); 
         window.clear();
         drawOcean();
         moveFish();
@@ -330,6 +338,9 @@ int main()
         window.display();
         std::this_thread::sleep_for(std::chrono::milliseconds(TIME));
         ++chronon;
+		benchTimeTaken = ((std::clock() - benchTimeTaken) / (double)CLOCKS_PER_SEC); // dividing start by CLOCKS_PER_SEC --> gives the number of seconds
+		benchFileWrite << benchTimeTaken << ",\n"; // after each chronon
     } // end while
+	benchFileWrite.close(); 
     return 0;
 } // end main
