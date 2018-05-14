@@ -49,6 +49,19 @@ Run the program
 
 ![Alt text](preview.png?raw=true "Title")
 
+## Sequential Benchmarking
+Benchmarking was carried out using a HP Notebook:
+
+System Type: 64-bit OS, x64-based processor
+  Processor: Intel(R) Core(TM) i5-6200U CPU @ 2.30GHz
+        RAM: 8.00 GB
+         
+The speed of the each iteration was measured in contrasting grid sizes. The grid sizes used are 40 x 40, 80 x 80, 160 x 160, 320 x 320. Statistics were collected for 5000 iterations for each grid size. This data is as follows:
+
+![Alt text](sequentialBMTable.png?raw=true "Title")
+
+![Alt text](sequentialBMChart.png?raw=true "Title")
+
 ## Authors
 
 * **Mark Kelly** - [GitHub](https://github.com/marcuskelly)
@@ -57,9 +70,6 @@ Run the program
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details
-
-## Sequential Benchmarking
-The speed of the each iteration was measured in contrasting grid sizes. The grid sizes used are 40 x 40, 80 x 80, 160 x 160, 320 x 320. Statistics were collected for 5000 iterations for each grid size. This data is as follows:
 
 ## Acknowledgments
 
