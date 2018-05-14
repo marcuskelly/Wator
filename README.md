@@ -58,6 +58,9 @@ Run the program
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details
 
+## Sequential Benchmarking
+The speed of the each iteration was measured in contrasting grid sizes. The grid sizes used are 40 x 40, 80 x 80, 160 x 160, 320 x 320. Statistics were collected for 5000 iterations for each grid size. This data is as follows:
+
 ## Acknowledgments
 
 Thanks to [Karl Redmond](https://github.com/karlosredmond) and [Ger Dobbs](https://github.com/gerdobbs) for their help getting SFML working on the MakeFile.
