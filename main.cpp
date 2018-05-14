@@ -10,7 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <time.h>
-// #include "main.h"
+#include <omp.h>
 #include <fstream> // for output filebenchmarking
 
 const int N_FISH = 820;
@@ -161,6 +161,7 @@ void findMove(int *xPosition, int *yPosition, int creature)
 **/
 void moveFish()
 {
+    #pragma omp parallel for collapse(2) num_threads(4)
     for (x = 0; x < OCEAN_WIDTH; ++x)
     {  
         for (y = 0; y < OCEAN_HEIGHT; ++y)
@@ -202,7 +203,8 @@ void moveFish()
  *  Moves shark.
 **/
 void moveShark()
-{     
+{
+    #pragma omp parallel for collapse(2) num_threads(4)
     for (x = 0; x < OCEAN_WIDTH; ++x)
     {  
         for (y = 0; y < OCEAN_HEIGHT; ++y)
@@ -284,6 +286,7 @@ void setUpSimulation()
     const int OFF_SET = 6; // offset = width of cell + 1
     int xPos = 0;
     int yPos = 0;
+    //#pragma omp parallel for collapse(2)
 	for (x = 0; x < OCEAN_WIDTH; ++x)
 	{
 		for (y = 0; y < OCEAN_HEIGHT; ++y)
