@@ -64,7 +64,7 @@ The speed of the each iteration was measured in contrasting grid sizes. The grid
 
 OpenMP was integrated into the application. Using the same machine stated above, the following statistics were observed.
 
-![Alt text](4threads.png?raw=true "Title")
+![Alt text](4threads.PNG?raw=true "Title")
 
 
 ## Authors
