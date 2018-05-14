@@ -67,10 +67,12 @@ OpenMP was integrated into the application. Using the same machine stated above,
 
 ![Alt text](4threads.PNG?raw=true "Title")
 
+* 4 thread implementation
 ![Alt text](4threadImplementation.PNG?raw=true "Title")
 
 ![Alt text](8threads.PNG?raw=true "Title")
 
+* 8 thread implementation
 ![Alt text](8threadImplementation.PNG?raw=true "Title")
 
 
