@@ -62,6 +62,11 @@ The speed of the each iteration was measured in contrasting grid sizes. The grid
 
 ![Alt text](sequentialBMChart.png?raw=true "Title")
 
+OpenMP was integrated into the application. Using the same machine stated above, the following statistics were observed.
+
+![Alt text](4Threads.png?raw=true "Title")
+
+
 ## Authors
 
 * **Mark Kelly** - [GitHub](https://github.com/marcuskelly)
