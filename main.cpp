@@ -10,7 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <time.h>
-#include "main.h"
+// #include "main.h"
 #include <fstream> // for output filebenchmarking
 
 const int N_FISH = 820;
